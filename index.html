@@ -10,12 +10,16 @@
 </header>
 <article>
   <h2>Background</h2>
-    The UWaterloo ECE 351 course (Compilers) includes a bonus lab involving the conversion of Java code to native code through the use of the <abbr title="Java Native Interface">JNI</abbr>. This write up is intended to guide students so that they are able to complete this lab successfully.
+    <p>The UWaterloo ECE 351 course (Compilers) includes a bonus lab involving the conversion of Java code to native code through the use of the <abbr title="Java Native Interface">JNI</abbr>. This write up is intended to guide students so that they are able to complete this lab successfully.</p>
 
+  <p>Information in this article is up to date as of August 2015, and has been verified with the following tools: OpenJDK 1.8.0_51, yasm 1.2.0, gcc 5.1.1, and Linux 4.1.5-200.fc22.x86_64. This article also assumes successful completion of a working Java implementation of the the simulator. This article will also use Intel ASM syntax.</p>
   <h2>Suggested Steps</h2>
-
+    <p>It is recommended to follow the approach below in order to maximize your understanding of the various topics involved. However, some of these steps may be omitted to save time</p>
+    <ol>
+      <li><h3>Convert static methods from <pre>ece351.util.Boolean351</pre> to C-based native equivalents</h3></li>
+      <li><h3>Optimize C implementation of <pre>ece351.util.Boolean351</pre> by hand</h3></li>
+    </ol>
   <h2>External Resources</h2>
 </article>
-  <footer>All information presented above is up to date as of August 29, 2015.</footer>
 </body>
 </html>
