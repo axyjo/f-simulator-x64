@@ -14,10 +14,46 @@
 
   <p>Information in this article is up to date as of August 2015, and has been verified with the following tools: OpenJDK 1.8.0_51, yasm 1.2.0, gcc 5.1.1, and Linux 4.1.5-200.fc22.x86_64. This article also assumes successful completion of a working Java implementation of the the simulator. This article will also use Intel ASM syntax.</p>
   <h2>Suggested Steps</h2>
-    <p>It is recommended to follow the approach below in order to maximize your understanding of the various topics involved. However, some of these steps may be omitted to save time</p>
+    <p>It is recommended to follow the approach below in order to maximize your understanding of the various topics involved. However, some of these steps may be omitted to save time.</p>
     <ol>
-      <li><h3>Convert static methods from <pre>ece351.util.Boolean351</pre> to C-based native equivalents</h3></li>
-      <li><h3>Optimize C implementation of <pre>ece351.util.Boolean351</pre> by hand</h3></li>
+      <li><h3>Convert static methods from <code>ece351.util.Boolean351</code> to C-based native equivalents</h3></li>
+        <p>The JDK includes a nice tool, <code>javah</code> which generates C header files for all native methods defined in a class. In order to take advantage of it, we must first mark methods within the class as <code>native</code>. Here's a sample diff showing the changes necessary:
+<pre><code class="lang-diff">
+-       public static boolean not(final boolean b) {
+-               return !b;
+-       }
++       public native static boolean not(final boolean b);
+</code></pre>
+        We see that the new method signature looks similar to that of an interface&mdash;there is no function body defined in the Java source! The <code>native</code> keyword tells the Java runtime to look in loaded libraries for a very specifically named function, and execute that instead of Java code. More on that in a minute.</p>
+
+        <p>With the changes in place, we can generate the C header file for this class by running <code>javah ece351.util.Boolean351</code> in the <code>src</code> directory. The tool creates a new file (<code>ece351_util_Boolean351.h</code>) in the current directory. This file contains much of the boilerplate necessary to write your functionality in C. To start, copy over the header file with a new extension (<code>.c</code>). From here, you can expand the provided method stub to contain your actual functionality.</p>
+        <p>Let's examine this file in greater detail.
+<pre><code class="lang-c">#include &lt;jni.h&gt;</code></pre>
+The code above includes the JDK-provided header file containing all of the <code>typedef</code>s and <code>struct</code>s used by JNI C code. The use of triangle-brackets indicates that the file will be found in a library directory, rather than the working directory. <pre><code class="lang-c">
+#ifndef _Included_ece351_util_Boolean351
+#define _Included_ece351_util_Boolean351
+(...)
+#endif
+</code></pre> This code is standard boilerplate to ensure that the variables and types contained in this file aren't defined twice. This reduces the chance of obscure complier errors that occur with multi-file C projects.
+<pre><code class="lang-c">
+/*
+ * Class:     ece351_util_Boolean351
+ * Method:    not
+ * Signature: (Z)Z
+ */
+JNIEXPORT jboolean JNICALL Java_ece351_util_Boolean351_not
+  (JNIEnv *, jclass, jboolean);
+</code></pre>
+The code above defines the signature of our native method. We must use the same method name, as this is the name the Java runtime will use to find the target method. The rules for deriving the method name are straightforward: <ol><li>Construct a new string starting with the string "<code>Java.</code>"</li><li>Append the method's fully qualified name (which includes the package, class and method names). In this case, the fully qualified name is <code>ece351.util.Boolean351.not</code></li><li>Replace "_" characters with "_1"</li><li>Replace "." characters with "_"</li></ol>
+
+The use of <code>JNIEXPORT</code> before the method ensures that the compiler allows the method to be referenced in the function table of the resulting binary. <code>JNICALL</code> expands to the calling convention used on the target system (more on this later); on x64 systems, this typically an empty expansion since there is only one calling convention.
+</p>
+
+        <p>The first argument to the native function is the JNI environment. This struct contains functions that allow native code to interact seamlessly with Java objects and the <abbr title="Java Virtual Machine">JVM</abbr>. The second argument to the native function is the equivalent of <code>this</code> in the Java. Most JNI functions will require us to pass around these first two arguments. The third argument is simply the actual argument as passed in via a Java method call. The generated docblock also shows the JVM's interpretation of the signature. In this case, <code>(Z)</code> indicates a return value of a Java boolean and <code>Z</code> indicates as single Java boolean argument to the method.</p>
+
+
+        <p>You may have notice that the generated code does not use the standard C types such as <code>int</code>, <code>char</code>, etc. to represent Java primitive types, but special variants such as <code>jint</code>, <code>jchar</code>, etc. This is to ensure that Java primitives are the same size in their C representation as expected, regardless of what size the C compiler makes the primitives. </p>
+      <li><h3>Optimize C implementation of <code>ece351.util.Boolean351</code> by hand</h3></li>
     </ol>
   <h2>External Resources</h2>
 </article>
