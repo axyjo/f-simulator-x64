@@ -57,13 +57,29 @@ The use of <code>JNIEXPORT</code> before the method ensures that the compiler al
 
         <p>You may have notice that the generated code does not use the standard C types such as <code>int</code>, <code>char</code>, etc. to represent Java primitive types, but special variants such as <code>jint</code>, <code>jchar</code>, etc. This is to ensure that Java primitives are the same size in their C representation as expected, regardless of what size the C compiler makes the primitives. </p>
         <p>To start implementing the functionality for this method, create a new file with the same name, but with a <code>.c</code> extension. Add an include for the header file (<code>#include "ece351_util_Boolean351.h"</code>) and copy over the C method signature. From here, you can expand the provided method stub to contain your actual functionality.</p>
+
       <li><h3>Optimize C implementation of <code>ece351.util.Boolean351</code> by hand</h3></li>
+
+
       <li><h3>Write, link and validate an assembler implementation of <code>ece351.util.Boolean351</code></h3></li>
+
+
       <li><h3>Write a Java class to generate assembler for test classes</h3></li>
         <p>This step is very similar to the actual lab itself, except that we will be generating assembler instead of Java code.</p>
+
+
       <li><h3>Modify the test runner to make, link and use the assembler as the system under test</h3></li>
+
+
       <li><h3>Implement peephole optimizations for the generated assembler</h3></li>
-        <p>This step will implement peephole optimizations in a similar manner as that of the Java labs (i.e., the optimizer will be confluent).</p>
+      <p>This step will implement peephole optimizations in a similar manner as that of the Java labs (i.e., the optimizer will be confluent). To reduce the scope of this section, we will cover two major optimizations to reduce instruction count. Both of these optimizations look at one or two consecutive instructions at a time. Although these instructions will reduce the number of instructions, it may increase the size of the program if the targetted processor's instruction set actually makes the optimized instruction with operands longer than the two instructions it replaces.</p>
+
+        <ol>
+        <li><code>push</code> followed by immediate <code>pop</code></li>
+          <p>The first optimization involves a <code>push</code> instruction followed immediately by a <code>pop</code> instruction. These two instructions can be replaced by a <code>mov</code> instruction.</p>
+        <li><code>mov</code> instructions where both operands are identical</li>
+          <p>The second optimization involves removing <code>mov</code> instructions where both operands are identical. These instructions are identical to a <code>nop</code>.</p>
+        </ol>
     </ol>
   <h2>External Resources</h2>
 </article>
